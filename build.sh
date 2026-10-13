@@ -13,6 +13,8 @@ command -v lb >/dev/null 2>&1 || {
     exit 1
 }
 
+VERSION="$(cat VERSION 2>/dev/null || echo 0.0.0)"
+
 echo "[*] cleaning previous build"
 lb clean --purge || true
 
@@ -22,11 +24,19 @@ lb config
 echo "[*] building (this takes a while and needs network access)"
 lb build
 
-ISO=$(ls -1 adrishya-*.iso 2>/dev/null | head -1 || true)
-if [ -n "$ISO" ]; then
-    sha256sum "$ISO" | tee "$ISO.sha256"
-    echo "[+] build complete: $ISO"
-else
-    echo "[!] build finished but no ISO found - inspect the log above." >&2
+echo "[*] locating the built ISO"
+RAW="$(ls -1 ./*.hybrid.iso 2>/dev/null | head -1 || true)"
+[ -z "$RAW" ] && RAW="$(ls -1 ./*.iso 2>/dev/null | head -1 || true)"
+[ -z "$RAW" ] && RAW="$(find . -maxdepth 2 -type f -name '*.iso' 2>/dev/null | head -1 || true)"
+
+if [ -z "$RAW" ]; then
+    echo "[!] build finished but no ISO file was found." >&2
     exit 1
 fi
+
+OUT="adrishya-${VERSION}-amd64.iso"
+if [ "$RAW" != "./$OUT" ] && [ "$RAW" != "$OUT" ]; then
+    mv -f "$RAW" "$OUT"
+fi
+sha256sum "$OUT" | tee "$OUT.sha256"
+echo "[+] build complete: $OUT"
