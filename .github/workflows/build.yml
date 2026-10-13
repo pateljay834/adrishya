@@ -1,7 +1,9 @@
 name: build-iso
 
-# Builds the Adrishya ISO on GitHub's Ubuntu runners, so you do not need any
-# Linux machine or VM of your own. Trigger it manually, or push a tag.
+# The build runs inside a Debian 13 container so we use Debian's own live-build
+# (the version that knows how to build trixie). The host runner provides the
+# loop devices live-build needs, hence --privileged.
+
 on:
   workflow_dispatch:
   push:
@@ -11,10 +13,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    # The repository root is the `adrishya` folder (its contents, not the
-    # folder itself). If you pushed it as a subdirectory, set
-    # `working-directory: adrishya` on the run steps below.
     steps:
       - name: Check out the source
         uses: actions/checkout@v4
@@ -25,22 +23,23 @@ jobs:
                       /opt/hostedtoolcache/CodeQL /usr/local/share/boost || true
           sudo apt-get clean
 
-      - name: Install build dependencies
+      - name: Build the ISO in a Debian container
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            live-build git gnupg curl ca-certificates debian-archive-keyring
+          docker run --privileged --rm \
+            -v "$PWD:/src" -w /src \
+            debian:trixie \
+            bash -c '
+              set -e
+              apt-get update
+              apt-get install -y --no-install-recommends \
+                live-build git gnupg curl ca-certificates
+              ./scripts/verify.sh
+              ./scripts/fetch-tor-browser.sh 15.0.25
+              ./build.sh
+            '
 
-      - name: Verify the source tree
-        run: ./scripts/verify.sh
-
-      - name: Bundle Tor Browser
-        env:
-          TOR_BROWSER_VERSION: "15.0.25"
-        run: ./scripts/fetch-tor-browser.sh "$TOR_BROWSER_VERSION"
-
-      - name: Build the ISO
-        run: sudo ./build.sh
+      - name: Fix file ownership
+        run: sudo chown -R "$(id -u):$(id -g)" . || true
 
       - name: Upload the ISO
         uses: actions/upload-artifact@v4
