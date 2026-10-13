@@ -36,7 +36,7 @@ jobs:
 
       - name: Bundle Tor Browser
         env:
-          TOR_BROWSER_VERSION: "14.5.7"
+          TOR_BROWSER_VERSION: "15.0.25"
         run: ./scripts/fetch-tor-browser.sh "$TOR_BROWSER_VERSION"
 
       - name: Build the ISO
