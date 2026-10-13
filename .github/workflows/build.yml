@@ -29,7 +29,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            live-build git gnupg curl ca-certificates
+            live-build git gnupg curl ca-certificates debian-archive-keyring
 
       - name: Verify the source tree
         run: ./scripts/verify.sh

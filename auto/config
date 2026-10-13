@@ -1,23 +1,26 @@
 #!/bin/sh
 # Adrishya live-build configuration. `lb config` runs this automatically.
+# `noauto` stops live-build from re-running this script recursively.
 set -e
 
-# Reproducibility: fix the build timestamp so identical inputs give identical
-# bytes. Override by exporting SOURCE_DATE_EPOCH before building.
 : "${SOURCE_DATE_EPOCH:=$(date -u +%s)}"
 export SOURCE_DATE_EPOCH
 
 lb config noauto \
+  --mode debian \
   --distribution trixie \
   --architectures amd64 \
   --binary-images iso-hybrid \
   --archive-areas "main contrib non-free non-free-firmware" \
+  --mirror-bootstrap "http://deb.debian.org/debian" \
+  --mirror-chroot "http://deb.debian.org/debian" \
+  --mirror-chroot-security "http://security.debian.org/debian-security" \
+  --mirror-binary "http://deb.debian.org/debian" \
+  --mirror-binary-security "http://security.debian.org/debian-security" \
   --debian-installer false \
   --apt-recommends false \
   --apt-indices false \
-  --bootappend-live "boot=live components quiet splash noeject nopersistence \
-    slab_nomerge init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 \
-    randomize_kstack_offset=on vsyscall=none debugfs=off oops=panic lockdown=confidentiality" \
+  --bootappend-live "boot=live components quiet splash noeject nopersistence slab_nomerge init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 randomize_kstack_offset=on vsyscall=none debugfs=off oops=panic lockdown=confidentiality" \
   --linux-flavours amd64 \
   --memtest none \
   --compression xz \
