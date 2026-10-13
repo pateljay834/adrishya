@@ -1,0 +1,27 @@
+# Adrishya: AppArmor profile for the bundled Tor Browser.
+#
+# Ships in COMPLAIN mode on purpose: it logs violations without blocking, so you
+# tune it from real logs before enforcing. Watch:
+#   grep 'apparmor="ALLOWED"' /var/log/syslog | grep tor-browser
+# Once the log is clean, remove the 'flags=(complain)' clause to enforce.
+#include <tunables/global>
+
+profile opt.tor-browser.Browser.firefox /opt/tor-browser/Browser/firefox flags=(complain) {
+  #include <abstractions/base>
+  #include <abstractions/audio>
+  #include <abstractions/fonts>
+  #include <abstractions/nameservice>
+  #include <abstractions/user-tmp>
+
+  /opt/tor-browser/** r,
+  owner @{HOME}/.tor-browser/** rwkl,
+  owner /run/user/*/** rw,
+  owner @{HOME}/Downloads/** rw,
+
+  /proc/*/net/* r,
+
+  # Explicit denials: the browser has no business reading these.
+  deny /etc/shadow r,
+  deny @{HOME}/.ssh/** rwkl,
+  deny @{HOME}/.gnupg/** rwkl,
+}

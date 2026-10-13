@@ -1,0 +1,14 @@
+# Adrishya: anonymity core
+tor
+torsocks
+obfs4proxy
+snowflake-client
+onionshare
+nftables
+macchanger
+secure-delete
+apparmor
+apparmor-profiles
+apparmor-utils
+usbguard
+# Tor Browser is bundled into the image by scripts/fetch-tor-browser.sh.

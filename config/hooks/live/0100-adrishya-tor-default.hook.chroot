@@ -1,0 +1,37 @@
+#!/bin/sh
+# Adrishya: make Tor the default and only network path.
+set -e
+
+TORRC=/etc/tor/torrc
+if ! grep -q "Adrishya" "$TORRC" 2>/dev/null; then
+    cat >> "$TORRC" <<'EOF'
+
+## Adrishya: transparent proxy defaults
+TransPort 9040
+DNSPort 5353
+AutomapHostsOnResolve 1
+VirtualAddrNetworkIPv4 10.192.0.0/10
+EOF
+fi
+
+printf 'nameserver 127.0.0.1\n' > /etc/resolv.conf
+
+systemctl enable nftables.service           || true
+systemctl enable tor.service                || true
+systemctl enable adrishya-mac.service       || true
+systemctl enable adrishya-ramwipe.service   || true
+
+# Amnesic defaults: no swap anywhere.
+swapoff -a || true
+sed -i '/[[:space:]]swap[[:space:]]/d' /etc/fstab || true
+
+# No persistent journal.
+rm -rf /var/log/journal || true
+mkdir -p /etc/systemd/journald.conf.d
+cat > /etc/systemd/journald.conf.d/99-adrishya.conf <<'EOF'
+[Journal]
+Storage=volatile
+SystemMaxUse=64M
+EOF
+
+echo "Adrishya: Tor-by-default hook applied."

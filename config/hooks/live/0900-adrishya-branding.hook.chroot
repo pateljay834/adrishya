@@ -1,0 +1,11 @@
+#!/bin/sh
+# Adrishya: neutral identity defaults.
+set -e
+
+printf 'adrishya\n' > /etc/hostname
+cat > /etc/hosts <<'EOF'
+127.0.0.1   localhost adrishya
+::1         localhost
+EOF
+
+echo "Adrishya: branding hook applied."

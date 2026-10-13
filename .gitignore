@@ -1,0 +1,16 @@
+binary*
+chroot*
+cache*
+config/binary
+config/chroot
+config/common
+config/includes.chroot/opt/tor-browser/*
+!config/includes.chroot/opt/tor-browser/README.bundling.md
+*.iso
+*.img
+*.contents
+*.packages
+*.files
+*.sha256
+*.asc
+sbom.cyclonedx.json

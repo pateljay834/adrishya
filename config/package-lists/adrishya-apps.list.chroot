@@ -1,0 +1,18 @@
+# Adrishya: applications
+thunderbird
+libreoffice
+keepassxc
+mat2
+dangerzone
+gimp
+gnome-passwordsafe
+flatpak
+# Indic localisation
+fonts-indic
+fonts-noto-core
+fonts-noto-cjk
+ibus
+ibus-m17n
+m17n-db
+# Accessibility
+orca

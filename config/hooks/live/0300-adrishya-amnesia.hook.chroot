@@ -1,0 +1,14 @@
+#!/bin/sh
+# Adrishya: reinforce amnesia - nothing identifying baked into the image.
+set -e
+
+chmod 1777 /tmp /var/tmp 2>/dev/null || true
+
+rm -f /etc/machine-id
+: > /etc/machine-id
+ln -sf /etc/machine-id /var/lib/dbus/machine-id 2>/dev/null || true
+
+rm -rf /root/.bash_history /home/*/.bash_history 2>/dev/null || true
+rm -rf /var/cache/apt/* /var/lib/apt/lists/* 2>/dev/null || true
+
+echo "Adrishya: amnesia hook applied."

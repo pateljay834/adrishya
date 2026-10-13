@@ -1,0 +1,86 @@
+#!/bin/bash
+# Adrishya USB Installer
+# Clones the running Adrishya live USB onto another USB stick - the Adrishya
+# equivalent of the Tails Installer. The fastest way to make a second stick
+# with the same, already-verified image.
+set -euo pipefail
+
+TITLE="Adrishya USB Installer"
+
+gui()  { command -v zenity >/dev/null 2>&1; }
+die()  { echo "error: $*" >&2; exit 1; }
+
+source_device() {
+    local src
+    src="$(findmnt -no SOURCE /run/live/medium 2>/dev/null || true)"
+    [ -z "$src" ] && src="$(findmnt -no SOURCE / 2>/dev/null || true)"
+    [ -z "$src" ] && return 1
+    # /dev/sdb1 -> /dev/sdb ; /dev/nvme0n1p1 -> /dev/nvme0n1
+    printf '%s\n' "$src" | sed -E 's#p?[0-9]+$##'
+}
+
+list_targets() {
+    local src="$1" name rm size model
+    while read -r name rm size model; do
+        [ -n "$name" ] || continue
+        [ "/dev/$name" = "$src" ] && continue
+        [ "$rm" = "1" ] || continue
+        printf '%s|%s|%s\n' "/dev/$name" "$size" "$model"
+    done < <(lsblk -dno NAME,RM,SIZE,MODEL 2>/dev/null)
+}
+
+[ "$(id -u)" -eq 0 ] || die "run as root:  sudo adrishya-installer"
+
+SRC="$(source_device)" || die "cannot find the device Adrishya booted from"
+[ -n "$SRC" ] || die "cannot determine the source device"
+
+mapfile -t TARGETS < <(list_targets "$SRC")
+[ "${#TARGETS[@]}" -gt 0 ] || die "no removable USB drives found - plug one in"
+
+# --- choose the target -----------------------------------------------------
+TGT=""
+if gui; then
+    CHOICES=()
+    for t in "${TARGETS[@]}"; do
+        IFS='|' read -r dev size model <<<"$t"
+        CHOICES+=("$dev" "$size  $model")
+    done
+    TGT="$(zenity --list --title="$TITLE" --text="Select the USB stick to overwrite:"
+                  --column="Device" --column="Size / Model" "${CHOICES[@]}" 2>/dev/null)" || exit 0
+else
+    echo "Available USB drives:"
+    i=1
+    for t in "${TARGETS[@]}"; do
+        IFS='|' read -r dev size model <<<"$t"
+        printf '  %d) %s  %s  %s\n' "$i" "$dev" "$size" "$model"
+        i=$((i+1))
+    done
+    read -rp "Select a number: " n
+    IFS='|' read -r TGT _ _ <<<"${TARGETS[$((n-1))]}"
+fi
+
+[ -n "$TGT" ] || die "no target selected"
+[ -b "$TGT" ] || die "$TGT is not a block device"
+
+# --- confirm ---------------------------------------------------------------
+WARN="This will ERASE everything on $TGT and replace it with Adrishya.
+Source: $SRC
+Target: $TGT"
+if gui; then
+    zenity --question --title="$TITLE" --width=440 --text="$WARN" || exit 0
+else
+    echo
+    echo "$WARN"
+    read -rp "Type the target device name ($TGT) to confirm: " ans
+    [ "$ans" = "$TGT" ] || die "confirmation did not match - aborted"
+fi
+
+# --- write -----------------------------------------------------------------
+echo "[*] copying $SRC -> $TGT"
+dd if="$SRC" of="$TGT" bs=4M status=progress oflag=sync conv=fsync
+sync
+echo "[+] done. You can remove the new Adrishya USB stick."
+
+if gui; then
+    zenity --info --title="$TITLE" --text="Done. Your new Adrishya USB stick is ready."
+fi

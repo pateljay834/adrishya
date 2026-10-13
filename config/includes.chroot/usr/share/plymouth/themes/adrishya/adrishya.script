@@ -1,0 +1,22 @@
+# Adrishya boot splash.
+# Dark background, the emblem centred, faded in gently. Deliberately minimal:
+# nothing on screen that could reveal what the machine is doing.
+
+Window.SetBackgroundTopColor(0.047, 0.090, 0.149);
+Window.SetBackgroundBottomColor(0.047, 0.090, 0.149);
+
+logo.image = Image("logo.png");
+logo.sprite = Sprite(logo.image);
+logo.sprite.SetX(Math.Int(Window.GetWidth() / 2 - logo.image.GetWidth() / 2));
+logo.sprite.SetY(Math.Int(Window.GetHeight() / 2 - logo.image.GetHeight() / 2));
+
+logo.sprite.SetOpacity(0.0);
+
+fun fade_in()
+{
+    var o = logo.sprite.GetOpacity();
+    if (o < 1.0)
+        logo.sprite.SetOpacity(Math.Min(1.0, o + 0.04));
+}
+
+Plymouth.SetRefreshFunction(fade_in);

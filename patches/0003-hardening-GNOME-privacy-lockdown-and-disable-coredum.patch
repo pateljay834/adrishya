@@ -1,0 +1,72 @@
+From 798ebbf3ee3d839e32f3b58a7d73fa201d959802 Mon Sep 17 00:00:00 2001
+From: Adrishya <dev@adrishya.local>
+Date: Mon, 12 Oct 2026 08:52:39 +0000
+Subject: [PATCH 3/6] hardening: GNOME privacy lockdown and disable coredumps
+
+---
+ .../live/0700-adrishya-privacy.hook.chroot    | 11 ++++++++++
+ .../etc/dconf/db/local.d/00-adrishya-privacy  | 20 +++++++++++++++++++
+ .../dconf/db/local.d/locks/00-adrishya-locks  |  6 ++++++
+ 3 files changed, 37 insertions(+)
+ create mode 100755 config/hooks/live/0700-adrishya-privacy.hook.chroot
+ create mode 100644 config/includes.chroot/etc/dconf/db/local.d/00-adrishya-privacy
+ create mode 100644 config/includes.chroot/etc/dconf/db/local.d/locks/00-adrishya-locks
+
+diff --git a/config/hooks/live/0700-adrishya-privacy.hook.chroot b/config/hooks/live/0700-adrishya-privacy.hook.chroot
+new file mode 100755
+index 0000000..04d5ae2
+--- /dev/null
++++ b/config/hooks/live/0700-adrishya-privacy.hook.chroot
+@@ -0,0 +1,11 @@
++#!/bin/sh
++# Adrishya: apply the dconf privacy lockdown and disable coredumps.
++set -e
++
++if command -v dconf >/dev/null 2>&1; then
++    dconf update || true
++fi
++
++systemctl mask systemd-coredump.socket systemd-coredump@.service 2>/dev/null || true
++
++echo "Adrishya: privacy hook applied."
+diff --git a/config/includes.chroot/etc/dconf/db/local.d/00-adrishya-privacy b/config/includes.chroot/etc/dconf/db/local.d/00-adrishya-privacy
+new file mode 100644
+index 0000000..5868f69
+--- /dev/null
++++ b/config/includes.chroot/etc/dconf/db/local.d/00-adrishya-privacy
+@@ -0,0 +1,20 @@
++# Adrishya: cut desktop features that create forensic traces or leak metadata.
++[org/gnome/desktop/privacy]
++remember-recent-files=false
++remove-old-temp-files=true
++remove-old-trash-files=true
++report-technical-problems=false
++
++[org/gnome/desktop/search-providers]
++disable-external=true
++sort-order=[]
++
++[org/gnome/system/location]
++enabled=false
++
++[org/gnome/desktop/lockdown]
++disable-printing=false
++
++[org/gnome/desktop/thumbnailers]
++# Thumbnailing writes image previews to disk; disable for untrusted media.
++disable-all=true
+diff --git a/config/includes.chroot/etc/dconf/db/local.d/locks/00-adrishya-locks b/config/includes.chroot/etc/dconf/db/local.d/locks/00-adrishya-locks
+new file mode 100644
+index 0000000..7d2ee85
+--- /dev/null
++++ b/config/includes.chroot/etc/dconf/db/local.d/locks/00-adrishya-locks
+@@ -0,0 +1,6 @@
++# Adrishya: lock the privacy settings so an app cannot re-enable them.
++/org/gnome/desktop/privacy/remember-recent-files
++/org/gnome/desktop/privacy/report-technical-problems
++/org/gnome/desktop/search-providers/disable-external
++/org/gnome/system/location/enabled
++/org/gnome/desktop/thumbnailers/disable-all
+-- 
+2.39.5
+

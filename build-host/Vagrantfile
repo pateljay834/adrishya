@@ -1,0 +1,20 @@
+# Adrishya build host. `vagrant up` then `vagrant ssh`.
+Vagrant.configure("2") do |config|
+  # Box names change over time; adjust for your provider.
+  config.vm.box = "generic/debian13"
+
+  config.vm.provider :libvirt do |lv|
+    lv.memory = 4096
+    lv.cpus = 4
+    lv.storage :file, :size => "20G"
+  end
+
+  config.vm.provider :virtualbox do |vb|
+    vb.memory = 4096
+    vb.cpus = 4
+  end
+
+  # Share the repository into the guest.
+  config.vm.synced_folder "..", "/adrishya"
+  config.vm.provision "shell", path: "provision.sh"
+end

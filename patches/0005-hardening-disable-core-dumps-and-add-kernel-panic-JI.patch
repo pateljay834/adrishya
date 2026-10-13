@@ -1,0 +1,38 @@
+From ff4b5aafc178c0825ece025e793ea3c9b68d5d8a Mon Sep 17 00:00:00 2001
+From: Adrishya <dev@adrishya.local>
+Date: Mon, 12 Oct 2026 08:52:39 +0000
+Subject: [PATCH 5/6] hardening: disable core dumps and add kernel panic/JIT
+ sysctls
+
+---
+ config/includes.chroot/etc/sysctl.d/97-adrishya-extra.conf  | 6 ++++++
+ .../etc/systemd/coredump.conf.d/99-adrishya.conf            | 4 ++++
+ 2 files changed, 10 insertions(+)
+ create mode 100644 config/includes.chroot/etc/sysctl.d/97-adrishya-extra.conf
+ create mode 100644 config/includes.chroot/etc/systemd/coredump.conf.d/99-adrishya.conf
+
+diff --git a/config/includes.chroot/etc/sysctl.d/97-adrishya-extra.conf b/config/includes.chroot/etc/sysctl.d/97-adrishya-extra.conf
+new file mode 100644
+index 0000000..e631c53
+--- /dev/null
++++ b/config/includes.chroot/etc/sysctl.d/97-adrishya-extra.conf
+@@ -0,0 +1,6 @@
++# Adrishya: additional kernel hardening.
++kernel.panic_on_oops = 1
++kernel.panic = 10
++net.core.bpf_jit_harden = 2
++dev.tty.ldisc_autoload = 0
++kernel.kptr_restrict = 2
+diff --git a/config/includes.chroot/etc/systemd/coredump.conf.d/99-adrishya.conf b/config/includes.chroot/etc/systemd/coredump.conf.d/99-adrishya.conf
+new file mode 100644
+index 0000000..6c32a4b
+--- /dev/null
++++ b/config/includes.chroot/etc/systemd/coredump.conf.d/99-adrishya.conf
+@@ -0,0 +1,4 @@
++# Adrishya: never write a core dump (they leak memory to disk).
++[Coredump]
++Storage=none
++ProcessSizeMax=0
+-- 
+2.39.5
+

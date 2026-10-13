@@ -1,0 +1,67 @@
+From dd67ea2d1f99a8566b1a35b4ad01779c337abc7f Mon Sep 17 00:00:00 2001
+From: Adrishya <dev@adrishya.local>
+Date: Mon, 12 Oct 2026 08:52:38 +0000
+Subject: [PATCH 2/6] hardening: confine tor and nftables with systemd
+ sandboxing
+
+---
+ .../10-adrishya-sandbox.conf                  | 15 ++++++++++++
+ .../tor.service.d/10-adrishya-sandbox.conf    | 24 +++++++++++++++++++
+ 2 files changed, 39 insertions(+)
+ create mode 100644 config/includes.chroot/etc/systemd/system/nftables.service.d/10-adrishya-sandbox.conf
+ create mode 100644 config/includes.chroot/etc/systemd/system/tor.service.d/10-adrishya-sandbox.conf
+
+diff --git a/config/includes.chroot/etc/systemd/system/nftables.service.d/10-adrishya-sandbox.conf b/config/includes.chroot/etc/systemd/system/nftables.service.d/10-adrishya-sandbox.conf
+new file mode 100644
+index 0000000..af42a44
+--- /dev/null
++++ b/config/includes.chroot/etc/systemd/system/nftables.service.d/10-adrishya-sandbox.conf
+@@ -0,0 +1,15 @@
++# Adrishya: confine the firewall service (keeps CAP_NET_ADMIN only).
++[Service]
++NoNewPrivileges=yes
++ProtectSystem=strict
++ProtectHome=yes
++PrivateTmp=yes
++ProtectKernelModules=yes
++ProtectControlGroups=yes
++ProtectClock=yes
++ProtectHostname=yes
++RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
++RestrictRealtime=yes
++LockPersonality=yes
++SystemCallArchitectures=native
++CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW
+diff --git a/config/includes.chroot/etc/systemd/system/tor.service.d/10-adrishya-sandbox.conf b/config/includes.chroot/etc/systemd/system/tor.service.d/10-adrishya-sandbox.conf
+new file mode 100644
+index 0000000..5f9fde3
+--- /dev/null
++++ b/config/includes.chroot/etc/systemd/system/tor.service.d/10-adrishya-sandbox.conf
+@@ -0,0 +1,24 @@
++# Adrishya: confine the Tor daemon with systemd sandboxing.
++[Service]
++NoNewPrivileges=yes
++ProtectSystem=strict
++ProtectHome=yes
++PrivateTmp=yes
++PrivateDevices=yes
++ProtectKernelTunables=yes
++ProtectKernelModules=yes
++ProtectKernelLogs=yes
++ProtectControlGroups=yes
++ProtectClock=yes
++ProtectHostname=yes
++RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
++RestrictNamespaces=yes
++RestrictRealtime=yes
++RestrictSUIDSGID=yes
++LockPersonality=yes
++MemoryDenyWriteExecute=yes
++SystemCallArchitectures=native
++SystemCallFilter=@system-service
++SystemCallErrorNumber=EPERM
++# Tor must still write its state, sockets, and logs.
++ReadWritePaths=/var/lib/tor /run/tor /var/log/tor
+-- 
+2.39.5
+

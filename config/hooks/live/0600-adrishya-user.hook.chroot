@@ -1,0 +1,21 @@
+#!/bin/sh
+# Adrishya: set sane defaults for the live user and the desktop.
+set -e
+
+SKEL=/etc/skel
+mkdir -p "$SKEL/.config"
+
+# Make Tor Browser the default browser for the live user.
+cat > "$SKEL/.config/mimeapps.list" <<'EOF'
+[Default Applications]
+x-scheme-handler/http=tor-browser.desktop
+x-scheme-handler/https=tor-browser.desktop
+text/html=tor-browser.desktop
+EOF
+
+# Prefer Tor Browser in the GNOME favourites.
+cat > "$SKEL/.config/gnome-initial-setup-done" <<'EOF'
+yes
+EOF
+
+echo "Adrishya: user-defaults hook applied."

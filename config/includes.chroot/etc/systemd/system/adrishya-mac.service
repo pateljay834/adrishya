@@ -1,0 +1,14 @@
+[Unit]
+Description=Adrishya MAC address randomisation
+DefaultDependencies=no
+Before=network-pre.target
+Wants=network-pre.target
+After=sysinit.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/adrishya-mac-randomize.sh
+
+[Install]
+WantedBy=multi-user.target

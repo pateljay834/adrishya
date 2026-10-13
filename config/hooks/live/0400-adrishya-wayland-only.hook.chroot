@@ -1,0 +1,19 @@
+#!/bin/sh
+# Adrishya: enforce a Wayland-only session. Removing X11 closes the global
+# screenshot and synthetic-input surface that Xorg exposes to any client.
+set -e
+
+# Force GDM to Wayland.
+mkdir -p /etc/gdm3
+if ! grep -q '^WaylandEnable=true' /etc/gdm3/custom.conf 2>/dev/null; then
+    printf '[daemon]\nWaylandEnable=true\n' > /etc/gdm3/custom.conf
+fi
+
+# Remove X11 session entries so only Wayland is offered.
+rm -f /usr/share/xsessions/* 2>/dev/null || true
+
+# Purge the X server. NOTE: verify this does not remove a package you need;
+# some GNOME components pull X libraries, which is fine - we remove the server.
+apt-get -y --purge remove 'xserver-xorg*' 2>/dev/null || true
+
+echo "Adrishya: Wayland-only hook applied."

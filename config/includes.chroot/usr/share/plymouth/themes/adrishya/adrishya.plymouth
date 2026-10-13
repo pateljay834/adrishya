@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Adrishya
+Description=Adrishya boot splash
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/adrishya
+ScriptFile=/usr/share/plymouth/themes/adrishya/adrishya.script

@@ -1,0 +1,6 @@
+# Adrishya: lock the privacy settings so an app cannot re-enable them.
+/org/gnome/desktop/privacy/remember-recent-files
+/org/gnome/desktop/privacy/report-technical-problems
+/org/gnome/desktop/search-providers/disable-external
+/org/gnome/system/location/enabled
+/org/gnome/desktop/thumbnailers/disable-all

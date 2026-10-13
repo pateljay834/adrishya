@@ -1,0 +1,19 @@
+#!/bin/sh
+# Adrishya: wire up the bundled Tor Browser and confine it with AppArmor.
+set -e
+
+if [ ! -x /opt/tor-browser/Browser/start-tor-browser ]; then
+    echo "Adrishya: WARNING - Tor Browser not bundled. Run scripts/fetch-tor-browser.sh before building." >&2
+fi
+
+chmod -R a+rX /opt/tor-browser 2>/dev/null || true
+
+# Ship a restrictive AppArmor profile for the browser.
+mkdir -p /etc/apparmor.d
+if [ -f /etc/apparmor.d/torbrowser.Browser.firefox ] && [ ! -f /etc/apparmor.d/opt.tor-browser.Browser.firefox ]; then
+    sed 's#profile firefox#profile /opt/tor-browser/Browser/firefox#' \
+        /etc/apparmor.d/torbrowser.Browser.firefox \
+        > /etc/apparmor.d/opt.tor-browser.Browser.firefox || true
+fi
+
+echo "Adrishya: Tor Browser hook applied."

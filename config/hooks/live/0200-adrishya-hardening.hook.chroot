@@ -1,0 +1,13 @@
+#!/bin/sh
+# Adrishya: enable hardening, remove risky defaults.
+set -e
+
+systemctl enable apparmor.service || true
+
+systemctl disable apt-daily.timer         2>/dev/null || true
+systemctl disable apt-daily-upgrade.timer 2>/dev/null || true
+systemctl mask    systemd-timesyncd.service 2>/dev/null || true
+
+systemctl enable usbguard.service 2>/dev/null || true
+
+echo "Adrishya: hardening hook applied."

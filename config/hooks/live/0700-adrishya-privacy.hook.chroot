@@ -1,0 +1,11 @@
+#!/bin/sh
+# Adrishya: apply the dconf privacy lockdown and disable coredumps.
+set -e
+
+if command -v dconf >/dev/null 2>&1; then
+    dconf update || true
+fi
+
+systemctl mask systemd-coredump.socket systemd-coredump@.service 2>/dev/null || true
+
+echo "Adrishya: privacy hook applied."

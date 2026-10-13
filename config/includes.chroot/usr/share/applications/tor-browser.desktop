@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Tor Browser
+Comment=Browse anonymously through Tor
+Exec=/opt/tor-browser/Browser/start-tor-browser
+Icon=/opt/tor-browser/Browser/browser/chrome/icons/default/default128.png
+Terminal=false
+Categories=Network;WebBrowser;Security;

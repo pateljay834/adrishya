@@ -1,0 +1,20 @@
+# Adrishya: cut desktop features that create forensic traces or leak metadata.
+[org/gnome/desktop/privacy]
+remember-recent-files=false
+remove-old-temp-files=true
+remove-old-trash-files=true
+report-technical-problems=false
+
+[org/gnome/desktop/search-providers]
+disable-external=true
+sort-order=[]
+
+[org/gnome/system/location]
+enabled=false
+
+[org/gnome/desktop/lockdown]
+disable-printing=false
+
+[org/gnome/desktop/thumbnailers]
+# Thumbnailing writes image previews to disk; disable for untrusted media.
+disable-all=true

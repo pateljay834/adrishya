@@ -1,0 +1,29 @@
+# Adrishya CI: verify on every change, build the ISO on tagged releases.
+stages:
+  - verify
+  - build
+
+verify:
+  stage: verify
+  image: debian:trixie
+  script:
+    - apt-get update && apt-get install -y --no-install-recommends bash findutils grep
+    - ./scripts/verify.sh
+
+build-iso:
+  stage: build
+  image: debian:trixie
+  tags:
+    - privileged          # live-build needs loop devices and root
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - apt-get update && apt-get install -y --no-install-recommends live-build git
+    - ./scripts/verify.sh
+    - ./scripts/fetch-tor-browser.sh "${TOR_BROWSER_VERSION:-14.5.7}"
+    - ./build.sh
+  artifacts:
+    paths:
+      - "*.iso"
+      - "*.sha256"
+    expire_in: 2 weeks

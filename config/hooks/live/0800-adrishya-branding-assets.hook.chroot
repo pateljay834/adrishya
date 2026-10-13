@@ -1,0 +1,21 @@
+#!/bin/sh
+# Adrishya: apply the wallpaper and logo to the desktop.
+set -e
+
+mkdir -p /etc/dconf/db/local.d
+cat > /etc/dconf/db/local.d/01-adrishya-background <<'EOF'
+[org/gnome/desktop/background]
+picture-uri=file:///usr/share/backgrounds/adrishya/wallpaper.png
+picture-uri-dark=file:///usr/share/backgrounds/adrishya/wallpaper.png
+picture-options=zoom
+primary-color='#0C1726'
+
+[org/gnome/desktop/screensaver]
+picture-uri=file:///usr/share/backgrounds/adrishya/wallpaper.png
+EOF
+
+if command -v dconf >/dev/null 2>&1; then
+    dconf update || true
+fi
+
+echo "Adrishya: branding-assets hook applied."

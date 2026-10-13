@@ -1,0 +1,9 @@
+# Adrishya: Wayland-only GNOME desktop
+gnome-core
+gnome-shell
+gnome-console
+gnome-text-editor
+nautilus
+gnome-software
+gnome-tweaks
+# No X11 server is installed on purpose (see hook 0400).

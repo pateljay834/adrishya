@@ -1,0 +1,22 @@
+#cloud-config
+package_update: true
+packages:
+  - live-build
+  - git
+  - gnupg
+  - curl
+  - ca-certificates
+runcmd:
+  - |
+    set -eux
+    mkdir -p /mnt
+    mount -t 9p -o trans=virtio,version=9p2000.L host0 /mnt || true
+    rm -rf /root/adrishya
+    cp -a /mnt/adrishya /root/adrishya
+    cd /root/adrishya
+    ./scripts/verify.sh
+    ./build.sh
+    mkdir -p /mnt/out
+    cp -v adrishya-*.iso adrishya-*.iso.sha256 /mnt/out/ || true
+    sync
+    poweroff

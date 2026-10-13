@@ -1,0 +1,22 @@
+# Adrishya: base system
+linux-image-amd64
+live-boot
+live-config
+live-config-systemd
+systemd
+systemd-sysv
+sudo
+ca-certificates
+curl
+gnupg
+xz-utils
+zstd
+rsync
+less
+nano
+haveged
+# Firmware (from non-free-firmware)
+firmware-linux-free
+firmware-iwlwifi
+firmware-realtek
+firmware-atheros

@@ -1,0 +1,53 @@
+name: build-iso
+
+# Builds the Adrishya ISO on GitHub's Ubuntu runners, so you do not need any
+# Linux machine or VM of your own. Trigger it manually, or push a tag.
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # The repository root is the `adrishya` folder (its contents, not the
+    # folder itself). If you pushed it as a subdirectory, set
+    # `working-directory: adrishya` on the run steps below.
+    steps:
+      - name: Check out the source
+        uses: actions/checkout@v4
+
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+                      /opt/hostedtoolcache/CodeQL /usr/local/share/boost || true
+          sudo apt-get clean
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            live-build git gnupg curl ca-certificates
+
+      - name: Verify the source tree
+        run: ./scripts/verify.sh
+
+      - name: Bundle Tor Browser
+        env:
+          TOR_BROWSER_VERSION: "14.5.7"
+        run: ./scripts/fetch-tor-browser.sh "$TOR_BROWSER_VERSION"
+
+      - name: Build the ISO
+        run: sudo ./build.sh
+
+      - name: Upload the ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: adrishya-iso
+          path: |
+            adrishya-*.iso
+            adrishya-*.iso.sha256
+          if-no-files-found: error
+          retention-days: 14

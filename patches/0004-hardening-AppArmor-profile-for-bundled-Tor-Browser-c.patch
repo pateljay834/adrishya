@@ -1,0 +1,47 @@
+From ea81fd7ac373ba423c592f78ac454557e24e9840 Mon Sep 17 00:00:00 2001
+From: Adrishya <dev@adrishya.local>
+Date: Mon, 12 Oct 2026 08:52:39 +0000
+Subject: [PATCH 4/6] hardening: AppArmor profile for bundled Tor Browser
+ (complain mode)
+
+---
+ .../opt.tor-browser.Browser.firefox           | 27 +++++++++++++++++++
+ 1 file changed, 27 insertions(+)
+ create mode 100644 config/includes.chroot/etc/apparmor.d/opt.tor-browser.Browser.firefox
+
+diff --git a/config/includes.chroot/etc/apparmor.d/opt.tor-browser.Browser.firefox b/config/includes.chroot/etc/apparmor.d/opt.tor-browser.Browser.firefox
+new file mode 100644
+index 0000000..71a19e7
+--- /dev/null
++++ b/config/includes.chroot/etc/apparmor.d/opt.tor-browser.Browser.firefox
+@@ -0,0 +1,27 @@
++# Adrishya: AppArmor profile for the bundled Tor Browser.
++#
++# Ships in COMPLAIN mode on purpose: it logs violations without blocking, so you
++# tune it from real logs before enforcing. Watch:
++#   grep 'apparmor="ALLOWED"' /var/log/syslog | grep tor-browser
++# Once the log is clean, remove the 'flags=(complain)' clause to enforce.
++#include <tunables/global>
++
++profile opt.tor-browser.Browser.firefox /opt/tor-browser/Browser/firefox flags=(complain) {
++  #include <abstractions/base>
++  #include <abstractions/audio>
++  #include <abstractions/fonts>
++  #include <abstractions/nameservice>
++  #include <abstractions/user-tmp>
++
++  /opt/tor-browser/** r,
++  owner @{HOME}/.tor-browser/** rwkl,
++  owner /run/user/*/** rw,
++  owner @{HOME}/Downloads/** rw,
++
++  /proc/*/net/* r,
++
++  # Explicit denials: the browser has no business reading these.
++  deny /etc/shadow r,
++  deny @{HOME}/.ssh/** rwkl,
++  deny @{HOME}/.gnupg/** rwkl,
++}
+-- 
+2.39.5
+

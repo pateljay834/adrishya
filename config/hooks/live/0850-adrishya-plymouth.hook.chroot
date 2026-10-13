@@ -1,0 +1,11 @@
+#!/bin/sh
+# Adrishya: install and select the boot splash theme.
+set -e
+
+if command -v plymouth-set-default-theme >/dev/null 2>&1; then
+    plymouth-set-default-theme -R adrishya \
+        || plymouth-set-default-theme adrishya \
+        || true
+fi
+
+echo "Adrishya: plymouth hook applied."

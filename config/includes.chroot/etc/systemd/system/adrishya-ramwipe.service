@@ -1,0 +1,14 @@
+[Unit]
+Description=Adrishya RAM wipe on shutdown
+DefaultDependencies=no
+Before=shutdown.target
+Conflicts=reboot.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStop=/usr/local/bin/adrishya-ram-wipe.sh
+TimeoutStopSec=180
+
+[Install]
+WantedBy=multi-user.target

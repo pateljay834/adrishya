@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Adrishya USB Installer
+Comment=Clone Adrishya onto another USB stick
+Exec=pkexec /usr/local/bin/adrishya-installer
+Icon=adrishya
+Terminal=false
+Categories=System;Security;
