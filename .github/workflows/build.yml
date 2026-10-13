@@ -31,8 +31,8 @@ jobs:
             bash -c '
               set -e
               apt-get update
-              apt-get install -y --no-install-recommends \
-                live-build git gnupg curl ca-certificates
+              apt-get install -y live-build git gnupg curl ca-certificates \
+                xz-utils squashfs-tools xorriso dosfstools mtools
               ./scripts/verify.sh
               ./scripts/fetch-tor-browser.sh 15.0.25
               ./build.sh
